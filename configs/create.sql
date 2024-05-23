@@ -1,7 +1,7 @@
 CREATE TABLE CartItems
 (
-    Id       integer,
-    CartId   integer,
-    Product  VARCHAR(50),
-    Quantity integer
+    Id       serial PRIMARY KEY NOT NULL,
+    CartId   integer NOT NULL,
+    Product  VARCHAR(50) NOT NULL,
+    Quantity integer NOT NULL
 );
