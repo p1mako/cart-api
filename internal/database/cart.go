@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/p1mako/cart-api/internal/models"
 )
@@ -14,12 +16,13 @@ type CartDB struct {
 }
 
 func (d CartDB) Create() (cart models.Cart, err error) {
-	query, err := d.db.Queryx("INSERT INTO carts DEFAULT VALUES")
+	var query *sqlx.Rows
+	query, err = d.db.Queryx("INSERT INTO carts DEFAULT VALUES RETURNING id")
 	if err != nil {
 		return
 	}
 	if !query.Next() {
-		return
+		return cart, sql.ErrNoRows
 	}
 	err = query.Scan(&cart.Id)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 type dbInfo struct {
@@ -22,9 +23,14 @@ var db *sqlx.DB
 func init() {
 	connectionInfo, err := getConfig()
 	if err != nil {
-		panic("Unable to open connection with db: error while loading config")
+		panic("unable to open connection with db: error while loading config")
 	}
+	fmt.Printf("Got database config for db %v\n", connectionInfo.Dbname)
 	db, err = sqlx.Open("postgres", parseToConStr(connectionInfo))
+	if err != nil {
+		panic("unable to open connection with db" + err.Error())
+	}
+	fmt.Printf("Opened connection with db %v\n", connectionInfo.Dbname)
 
 }
 
@@ -44,4 +50,12 @@ func getConfig() (*dbInfo, error) {
 	}
 	err = json.NewDecoder(confFile).Decode(&connectionInfo)
 	return &connectionInfo, err
+}
+
+func Close() error {
+	err := db.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 }

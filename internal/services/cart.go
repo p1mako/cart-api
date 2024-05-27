@@ -15,8 +15,5 @@ type CartService struct {
 
 func (s CartService) Create() (cart models.Cart, err error) {
 	cart, err = s.db.Create()
-	if err != nil {
-		return
-	}
 	return
 }

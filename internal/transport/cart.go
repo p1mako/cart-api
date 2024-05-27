@@ -15,7 +15,7 @@ type CartHandler struct {
 	service *services.CartService
 }
 
-func (c *CartHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (c *CartHandler) Create(w http.ResponseWriter, _ *http.Request) {
 	cart, err := c.service.Create()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -31,5 +31,4 @@ func (c *CartHandler) Create(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNotFound)
 }

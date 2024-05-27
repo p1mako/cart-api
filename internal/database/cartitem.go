@@ -17,14 +17,14 @@ func (d *CartItemDB) Create(items ...models.CartItem) (results []models.CartItem
 	for _, item := range items {
 		query, err := d.db.Queryx("INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3)", item.CartId, item.Product, item.Quantity)
 		if err != nil {
-			return
+			return results, err
 		}
 		if !query.Next() {
-			return
+			return results, err
 		}
 		err = query.Scan(&item.Id)
 		if err != nil {
-			return
+			return results, err
 		}
 		results = append(results, item)
 	}
