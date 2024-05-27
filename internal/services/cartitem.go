@@ -22,9 +22,14 @@ func (s *CartItemService) Create(items ...models.CartItem) (results []models.Car
 }
 
 func (s *CartItemService) GetCartItems(cart models.Cart) (items []models.CartItem, err error) {
-	panic("unimplemented")
+	items, err = s.db.GetCartItems(cart.Id)
+	if err != nil {
+		return
+	}
+	return
 }
 
-func (s *CartItemService) Remove(item models.CartItem) error {
-	panic("unimplemented")
+func (s *CartItemService) Remove(item models.CartItem) (err error) {
+	err = s.db.Remove(item)
+	return err
 }
