@@ -31,10 +31,23 @@ func (d *CartItemDB) Create(items ...models.CartItem) (results []models.CartItem
 	return
 }
 
-func (d *CartItemDB) GetCartItems(cart int) ([]models.CartItem, error) {
-	panic("unimplemented")
+func (d *CartItemDB) GetCartItems(cart int) (items []models.CartItem, err error) {
+	query, err := d.db.Queryx("SELECT id, cartid, product, quantity FROM cartitems WHERE cartid = $1", cart)
+	if err != nil {
+		return nil, err
+	}
+	for query.Next() {
+		var item models.CartItem
+		err := query.Scan(&item.Id, &item.CartId, &item.Product, &item.Quantity)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return
 }
 
-func (d *CartItemDB) Remove(item models.CartItem) error {
-	panic("unimplemented")
+func (d *CartItemDB) Remove(item models.CartItem) (err error) {
+	_, err = d.db.Exec("DELETE FROM cartitems WHERE id = $1", item.Id)
+	return
 }

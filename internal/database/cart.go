@@ -15,7 +15,7 @@ type CartDB struct {
 	db *sqlx.DB
 }
 
-func (d CartDB) Create() (cart models.Cart, err error) {
+func (d *CartDB) Create() (cart models.Cart, err error) {
 	var query *sqlx.Rows
 	query, err = d.db.Queryx("INSERT INTO carts DEFAULT VALUES RETURNING id")
 	if err != nil {
@@ -23,6 +23,18 @@ func (d CartDB) Create() (cart models.Cart, err error) {
 	}
 	if !query.Next() {
 		return cart, sql.ErrNoRows
+	}
+	err = query.Scan(&cart.Id)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (d *CartDB) Get(id int) (cart models.Cart, err error) {
+	query := d.db.QueryRowx("SELECT * FROM carts WHERE id = $1", id)
+	if query.Err() != nil {
+		return cart, query.Err()
 	}
 	err = query.Scan(&cart.Id)
 	if err != nil {
