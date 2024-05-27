@@ -24,15 +24,23 @@ func (s *CartService) Create() (cart models.Cart, err error) {
 
 func (s *CartService) AddItem(cart models.Cart, item models.CartItem) (result models.Cart, err error) {
 	result, err = s.GetCart(cart.Id)
+	if item.Quantity <= 0 {
+		return result, ErrBadQuantity
+	}
+	if item.Product == "" {
+		return result, ErrNoProductName
+	}
 	if err != nil {
 		return
 	}
 	itemServ := NewCartItemService()
 	created, err := itemServ.Create(item)
+
 	if err != nil {
 		return
 	}
 	result.Items = append(result.Items, created...)
+
 	return
 }
 
@@ -46,32 +54,30 @@ func (s *CartService) RemoveItem(cart models.Cart, item models.CartItem) (result
 	if err != nil {
 		return
 	}
-	items, err := itemServ.GetCartItems(result)
+	result.Items, err = itemServ.GetCartItems(result.Id)
 	if err != nil {
 		return
 	}
-	result.Items = append(result.Items, items...)
-	return
-}
-
-func (s *CartService) View(cart models.Cart) (result models.Cart, err error) {
-	result, err = s.GetCart(cart.Id)
-	if err != nil {
-		return
-	}
-	itemServ := NewCartItemService()
-	items, err := itemServ.GetCartItems(cart)
-	if err != nil {
-		return
-	}
-	result.Items = append(result.Items, items...)
 	return
 }
 
 func (s *CartService) GetCart(id int) (models.Cart, error) {
 	oldCart, err := s.db.Get(id)
 	if errors.Is(err, sql.ErrNoRows) {
-		return oldCart, errors.Join(errors.New(fmt.Sprintf("no cart was found with id %v: ", id)), err)
+		return oldCart, ErrNoSuchCart{Id: id}
 	}
+	itemServ := NewCartItemService()
+	oldCart.Items, err = itemServ.GetCartItems(id)
 	return oldCart, err
 }
+
+type ErrNoSuchCart struct {
+	Id int
+}
+
+func (e ErrNoSuchCart) Error() string {
+	return fmt.Sprintf("Cannot find cart with id %v\n", e.Id)
+}
+
+var ErrNoProductName = errors.New("no product name provided")
+var ErrBadQuantity = errors.New("quantity of product is non positive")

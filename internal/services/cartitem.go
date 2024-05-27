@@ -21,8 +21,8 @@ func (s *CartItemService) Create(items ...models.CartItem) (results []models.Car
 	return
 }
 
-func (s *CartItemService) GetCartItems(cart models.Cart) (items []models.CartItem, err error) {
-	items, err = s.db.GetCartItems(cart.Id)
+func (s *CartItemService) GetCartItems(id int) (items []models.CartItem, err error) {
+	items, err = s.db.GetCartItems(id)
 	if err != nil {
 		return
 	}
