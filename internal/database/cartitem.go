@@ -15,16 +15,14 @@ type CartItemDB struct {
 
 func (d *CartItemDB) Create(items ...models.CartItem) (results []models.CartItem, err error) {
 	for _, item := range items {
-		query, err := d.db.Queryx("INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3)", item.CartId, item.Product, item.Quantity)
-		if err != nil {
-			return results, err
-		}
-		if !query.Next() {
-			return results, err
+		var query *sqlx.Rows
+		query, err = d.db.Queryx("INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3) RETURNING id", item.CartId, item.Product, item.Quantity)
+		if err != nil || !query.Next() {
+			return
 		}
 		err = query.Scan(&item.Id)
 		if err != nil {
-			return results, err
+			return
 		}
 		results = append(results, item)
 	}
@@ -40,7 +38,7 @@ func (d *CartItemDB) GetCartItems(cart int) (items []models.CartItem, err error)
 		var item models.CartItem
 		err := query.Scan(&item.Id, &item.CartId, &item.Product, &item.Quantity)
 		if err != nil {
-			return nil, err
+			return items, err
 		}
 		items = append(items, item)
 	}
