@@ -30,3 +30,11 @@ func (d *CartItemDB) Create(items ...models.CartItem) (results []models.CartItem
 	}
 	return
 }
+
+func (d *CartItemDB) GetCartItems(cart int) ([]models.CartItem, error) {
+	panic("unimplemented")
+}
+
+func (d *CartItemDB) Remove(item models.CartItem) error {
+	panic("unimplemented")
+}

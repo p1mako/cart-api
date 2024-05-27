@@ -32,3 +32,15 @@ func (c *CartHandler) Create(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 }
+
+func (c *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (c *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (c *CartHandler) View(w http.ResponseWriter, r *http.Request) {
+
+}

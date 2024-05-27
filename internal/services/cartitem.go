@@ -13,10 +13,18 @@ type CartItemService struct {
 	db *database.CartItemDB
 }
 
-func (s CartItemService) Create(items ...models.CartItem) (results []models.CartItem, err error) {
+func (s *CartItemService) Create(items ...models.CartItem) (results []models.CartItem, err error) {
 	results, err = s.db.Create(items...)
 	if err != nil {
 		return
 	}
 	return
+}
+
+func (s *CartItemService) GetCartItems(cart models.Cart) (items []models.CartItem, err error) {
+	panic("unimplemented")
+}
+
+func (s *CartItemService) Remove(item models.CartItem) error {
+	panic("unimplemented")
 }
