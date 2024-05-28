@@ -23,25 +23,14 @@ func (s *CartService) Create() (cart models.Cart, err error) {
 	return
 }
 
-func (s *CartService) AddItem(cart models.Cart, item models.CartItem) (result models.Cart, err error) {
-	result, err = s.Get(cart.Id)
+func (s *CartService) AddItem(item models.CartItem) (result models.CartItem, err error) {
 	if item.Quantity <= 0 {
 		return result, ErrBadQuantity
 	}
 	if item.Product == "" {
 		return result, ErrNoProductName
 	}
-	if err != nil {
-		return
-	}
-	created, err := s.itemServ.Create(item)
-
-	if err != nil {
-		return
-	}
-	result.Items = append(result.Items, created...)
-
-	return
+	return s.itemServ.Create(item)
 }
 
 func (s *CartService) RemoveItem(cart models.Cart, item models.CartItem) (result models.Cart, err error) {

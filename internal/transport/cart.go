@@ -43,14 +43,13 @@ func (c *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	cart := models.Cart{Id: id}
 	err = json.NewDecoder(r.Body).Decode(&item)
 	item.CartId = id
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	cart, err = c.service.AddItem(cart, item)
+	created, err := c.service.AddItem(item)
 	if errors.Is(err, services.ErrNoProductName) || errors.Is(err, services.ErrBadQuantity) || errors.Is(err, new(services.ErrNoSuchCart)) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -60,7 +59,7 @@ func (c *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	marshaledCart, err := json.Marshal(cart)
+	marshaledCart, err := json.Marshal(created)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

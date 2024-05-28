@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/p1mako/cart-api/internal/database"
 	"github.com/p1mako/cart-api/internal/models"
 )
@@ -13,12 +15,12 @@ type CartItemService struct {
 	db database.CartItemStorage
 }
 
-func (s *CartItemService) Create(items ...models.CartItem) (results []models.CartItem, err error) {
-	results, err = s.db.Create(items...)
+func (s *CartItemService) Create(item models.CartItem) (models.CartItem, error) {
+	results, err := s.db.Create(item)
 	if err != nil {
-		return
+		return models.CartItem{}, errors.Join(ErrNoSuchCart{item.CartId}, err)
 	}
-	return
+	return results[0], err
 }
 
 func (s *CartItemService) GetCartItems(id int) (items []models.CartItem, err error) {
