@@ -10,7 +10,7 @@ func NewCartItemService() *CartItemService {
 }
 
 type CartItemService struct {
-	db *database.CartItemDB
+	db database.CartItemStorage
 }
 
 func (s *CartItemService) Create(items ...models.CartItem) (results []models.CartItem, err error) {
@@ -22,7 +22,7 @@ func (s *CartItemService) Create(items ...models.CartItem) (results []models.Car
 }
 
 func (s *CartItemService) GetCartItems(id int) (items []models.CartItem, err error) {
-	items, err = s.db.GetCartItems(id)
+	items, err = s.db.LoadCartItems(id)
 	if err != nil {
 		return
 	}

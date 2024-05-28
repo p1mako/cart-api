@@ -15,7 +15,7 @@ func NewCartHandler() *CartHandler {
 }
 
 type CartHandler struct {
-	service *services.CartService
+	service services.ICartService
 }
 
 func (c *CartHandler) Create(w http.ResponseWriter, _ *http.Request) {
@@ -109,13 +109,14 @@ func (c *CartHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cart := models.Cart{Id: id}
-	result, err := c.service.GetCart(cart.Id)
+	result, err := c.service.Get(cart.Id)
 	if errors.Is(err, new(services.ErrNoSuchCart)) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	marshaled, err := json.Marshal(result)
 	if err != nil {

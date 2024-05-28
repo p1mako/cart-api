@@ -14,7 +14,7 @@ func NewCartService() *CartService {
 }
 
 type CartService struct {
-	db *database.CartDB
+	db database.CartStorage
 }
 
 func (s *CartService) Create() (cart models.Cart, err error) {
@@ -23,7 +23,7 @@ func (s *CartService) Create() (cart models.Cart, err error) {
 }
 
 func (s *CartService) AddItem(cart models.Cart, item models.CartItem) (result models.Cart, err error) {
-	result, err = s.GetCart(cart.Id)
+	result, err = s.Get(cart.Id)
 	if item.Quantity <= 0 {
 		return result, ErrBadQuantity
 	}
@@ -45,7 +45,7 @@ func (s *CartService) AddItem(cart models.Cart, item models.CartItem) (result mo
 }
 
 func (s *CartService) RemoveItem(cart models.Cart, item models.CartItem) (result models.Cart, err error) {
-	result, err = s.GetCart(cart.Id)
+	result, err = s.Get(cart.Id)
 	if err != nil {
 		return
 	}
@@ -61,8 +61,8 @@ func (s *CartService) RemoveItem(cart models.Cart, item models.CartItem) (result
 	return
 }
 
-func (s *CartService) GetCart(id int) (models.Cart, error) {
-	oldCart, err := s.db.Get(id)
+func (s *CartService) Get(id int) (models.Cart, error) {
+	oldCart, err := s.db.Load(id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return oldCart, ErrNoSuchCart{Id: id}
 	}

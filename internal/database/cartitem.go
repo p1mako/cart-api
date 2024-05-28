@@ -29,7 +29,7 @@ func (d *CartItemDB) Create(items ...models.CartItem) (results []models.CartItem
 	return
 }
 
-func (d *CartItemDB) GetCartItems(cart int) (items []models.CartItem, err error) {
+func (d *CartItemDB) LoadCartItems(cart int) (items []models.CartItem, err error) {
 	query, err := d.db.Queryx("SELECT id, cartid, product, quantity FROM cartitems WHERE cartid = $1", cart)
 	if err != nil {
 		return nil, err
