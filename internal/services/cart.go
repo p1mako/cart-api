@@ -10,11 +10,12 @@ import (
 )
 
 func NewCartService() *CartService {
-	return &CartService{db: database.NewCartDB()}
+	return &CartService{db: database.NewCartDB(), itemServ: NewCartItemService()}
 }
 
 type CartService struct {
-	db database.CartStorage
+	db       database.CartStorage
+	itemServ ICartItemService
 }
 
 func (s *CartService) Create() (cart models.Cart, err error) {
@@ -33,8 +34,7 @@ func (s *CartService) AddItem(cart models.Cart, item models.CartItem) (result mo
 	if err != nil {
 		return
 	}
-	itemServ := NewCartItemService()
-	created, err := itemServ.Create(item)
+	created, err := s.itemServ.Create(item)
 
 	if err != nil {
 		return
@@ -49,12 +49,11 @@ func (s *CartService) RemoveItem(cart models.Cart, item models.CartItem) (result
 	if err != nil {
 		return
 	}
-	itemServ := NewCartItemService()
-	err = itemServ.Remove(item)
+	err = s.itemServ.Remove(item)
 	if err != nil {
 		return
 	}
-	result.Items, err = itemServ.GetCartItems(result.Id)
+	result.Items, err = s.itemServ.GetCartItems(result.Id)
 	if err != nil {
 		return
 	}
@@ -66,8 +65,7 @@ func (s *CartService) Get(id int) (models.Cart, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return oldCart, ErrNoSuchCart{Id: id}
 	}
-	itemServ := NewCartItemService()
-	oldCart.Items, err = itemServ.GetCartItems(id)
+	oldCart.Items, err = s.itemServ.GetCartItems(id)
 	return oldCart, err
 }
 
