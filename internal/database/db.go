@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/jmoiron/sqlx"
@@ -25,12 +26,12 @@ func init() {
 	if err != nil {
 		panic("unable to open connection with db: error while loading config")
 	}
-	fmt.Printf("Got database config for db %v\n", connectionInfo.Dbname)
+	log.Printf("Got database config for db %v\n", connectionInfo.Dbname)
 	db, err = sqlx.Open("postgres", parseToConStr(connectionInfo))
 	if err != nil {
 		panic("unable to open connection with db" + err.Error())
 	}
-	fmt.Printf("Opened connection with db %v\n", connectionInfo.Dbname)
+	log.Printf("Opened connection with db %v\n", connectionInfo.Dbname)
 
 }
 

@@ -3,8 +3,8 @@ package app
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/p1mako/cart-api/internal/database"
@@ -20,16 +20,15 @@ func Run() {
 	defer func(srv *http.Server) {
 		err := srv.Close()
 		if err != nil {
-			_ = fmt.Errorf("unable to stop server: %w\n", err)
-			return
+			log.Fatalf("unable to stop server: %v\n", err.Error())
 		}
-		fmt.Printf("Sucessfully closed server: %v\n", srv.Addr)
+		log.Printf("Sucessfully closed server: %v\n", srv.Addr)
 	}(&srv)
 	go userInput(exit)
 	select {
 	case err := <-exit:
 		if err != nil {
-			_ = fmt.Errorf("unable to start server: %w", err)
+			log.Fatalf("unable to start server: %v\n", err.Error())
 		}
 		return
 	}
@@ -40,7 +39,7 @@ func userInput(c chan error) {
 		var input string
 		_, err := fmt.Scan(&input)
 		if err != nil {
-			_ = fmt.Errorf("failed to start listening to user input: %w\n", err)
+			log.Fatalf("failed to start listening to user input: %v\n", err.Error())
 			return
 		}
 		if strings.ToLower(input) == "exit" {
@@ -68,10 +67,10 @@ func setPaths() {
 func closeDB() {
 	err := database.Close()
 	if err != nil {
-		_, err := fmt.Fprintf(os.Stderr, "cannot close database connection, beacause: %v", err)
+		log.Printf("cannot close database connection, beacause: %v\n", err)
 		if err != nil {
 			panic("unable to log errors")
 		}
 	}
-	fmt.Print("Closed bd")
+	log.Println("Closed bd")
 }
