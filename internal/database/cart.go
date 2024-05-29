@@ -32,7 +32,7 @@ func (d *CartDB) Create() (cart models.Cart, err error) {
 }
 
 func (d *CartDB) Load(id int) (cart models.Cart, err error) {
-	query := d.db.QueryRowx("SELECT * FROM carts WHERE id = $1", id)
+	query := d.db.QueryRowx("SELECT id FROM carts WHERE id = $1", id)
 	if query.Err() != nil {
 		return cart, query.Err()
 	}
