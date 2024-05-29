@@ -7,13 +7,13 @@ import (
 	"github.com/p1mako/cart-api/internal/models"
 )
 
-type ICartItemService interface {
+type CartItemService interface {
 	Create(items models.CartItem) (models.CartItem, error)
 	GetCartItems(cart int) ([]models.CartItem, error)
 	Remove(item models.CartItem) error
 }
 
-type ICartService interface {
+type CartService interface {
 	Create() (models.Cart, error)
 	AddItem(item models.CartItem) (models.CartItem, error)
 	RemoveItem(item models.CartItem) error

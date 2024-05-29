@@ -11,11 +11,11 @@ import (
 )
 
 func NewCartHandler() *CartHandler {
-	return &CartHandler{service: services.NewCartService()}
+	return &CartHandler{service: services.NewCartManipulator()}
 }
 
 type CartHandler struct {
-	service services.ICartService
+	service services.CartService
 }
 
 func (c *CartHandler) Create(w http.ResponseWriter, _ *http.Request) {

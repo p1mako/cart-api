@@ -8,20 +8,20 @@ import (
 	"github.com/p1mako/cart-api/internal/models"
 )
 
-func NewCartService() *CartService {
-	return &CartService{db: database.NewCartDB(), itemServ: NewCartItemService()}
+func NewCartManipulator() *CartManipulator {
+	return &CartManipulator{db: database.NewCartDB(), itemServ: NewCartItemManipulator()}
 }
 
-type CartService struct {
+type CartManipulator struct {
 	db       database.CartStorage
-	itemServ ICartItemService
+	itemServ CartItemService
 }
 
-func (s *CartService) Create() (models.Cart, error) {
+func (s *CartManipulator) Create() (models.Cart, error) {
 	return s.db.Create()
 }
 
-func (s *CartService) AddItem(item models.CartItem) (models.CartItem, error) {
+func (s *CartManipulator) AddItem(item models.CartItem) (models.CartItem, error) {
 	if item.Quantity <= 0 {
 		return models.CartItem{}, ErrBadQuantity
 	}
@@ -31,11 +31,11 @@ func (s *CartService) AddItem(item models.CartItem) (models.CartItem, error) {
 	return s.itemServ.Create(item)
 }
 
-func (s *CartService) RemoveItem(item models.CartItem) error {
+func (s *CartManipulator) RemoveItem(item models.CartItem) error {
 	return s.itemServ.Remove(item)
 }
 
-func (s *CartService) Get(id int) (models.Cart, error) {
+func (s *CartManipulator) Get(id int) (models.Cart, error) {
 	oldCart, err := s.db.Load(id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return oldCart, ErrNoSuchCart{Id: id}
