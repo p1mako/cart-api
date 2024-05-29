@@ -24,12 +24,12 @@ var db *sqlx.DB
 func init() {
 	connectionInfo, err := getConfig()
 	if err != nil {
-		panic("unable to open connection with db: error while loading config")
+		log.Fatalf("unable to open connection with db: error while loading config")
 	}
 	log.Printf("Got database config for db %v\n", connectionInfo.Dbname)
 	db, err = sqlx.Open("postgres", parseToConStr(connectionInfo))
 	if err != nil {
-		panic("unable to open connection with db" + err.Error())
+		log.Fatalf("unable to open connection with db %v\n", err.Error())
 	}
 	log.Printf("Opened connection with db %v\n", connectionInfo.Dbname)
 

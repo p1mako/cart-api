@@ -68,9 +68,6 @@ func closeDB() {
 	err := database.Close()
 	if err != nil {
 		log.Printf("cannot close database connection, beacause: %v\n", err)
-		if err != nil {
-			panic("unable to log errors")
-		}
 	}
 	log.Println("Closed bd")
 }
