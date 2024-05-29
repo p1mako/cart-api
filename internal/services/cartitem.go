@@ -1,7 +1,6 @@
 package services
 
 import (
-	"database/sql"
 	"errors"
 
 	"github.com/p1mako/cart-api/internal/database"
@@ -32,13 +31,13 @@ func (s *CartItemService) GetCartItems(id int) (items []models.CartItem, err err
 	return
 }
 
-func (s *CartItemService) Remove(item models.CartItem) (err error) {
-	err = s.db.Remove(item)
-	if errors.Is(err, sql.ErrNoRows) {
-		return errors.Join(ErrNoSuchItem{Id: item.Id}, err)
-	}
+func (s *CartItemService) Remove(item models.CartItem) error {
+	cnt, err := s.db.Remove(item)
 	if err != nil {
 		return errors.Join(ErrNoSuchCart{item.CartId}, err)
+	}
+	if cnt != 1 {
+		return ErrNoSuchItem{Id: item.Id}
 	}
 	return err
 }

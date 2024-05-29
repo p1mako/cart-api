@@ -42,7 +42,7 @@ type ErrNoSuchItem struct {
 }
 
 func (e ErrNoSuchItem) Error() string {
-	return fmt.Sprintf("Cannot find cart with id %v\n", e.Id)
+	return fmt.Sprintf("Cannot find item with id %v\n", e.Id)
 }
 
 func (e ErrNoSuchItem) Is(target error) bool {

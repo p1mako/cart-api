@@ -5,7 +5,7 @@ import "github.com/p1mako/cart-api/internal/models"
 type CartItemStorage interface {
 	Create(items ...models.CartItem) (results []models.CartItem, err error)
 	LoadCartItems(cart int) (items []models.CartItem, err error)
-	Remove(item models.CartItem) (err error)
+	Remove(item models.CartItem) (int, error)
 }
 
 type CartStorage interface {
