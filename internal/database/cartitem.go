@@ -13,27 +13,28 @@ type CartItemDB struct {
 	db *sqlx.DB
 }
 
-func (d *CartItemDB) Create(items ...models.CartItem) (results []models.CartItem, err error) {
+func (d *CartItemDB) Create(items ...models.CartItem) ([]models.CartItem, error) {
+	var results []models.CartItem
 	for _, item := range items {
-		var query *sqlx.Rows
-		query, err = d.db.Queryx("INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3) ON CONFLICT (cartid, product) DO UPDATE SET quantity = cartitems.quantity + excluded.quantity RETURNING cartitems.id, cartitems.quantity", item.CartId, item.Product, item.Quantity)
+		query, err := d.db.Queryx("INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3) ON CONFLICT (cartid, product) DO UPDATE SET quantity = cartitems.quantity + excluded.quantity RETURNING cartitems.id, cartitems.quantity", item.CartId, item.Product, item.Quantity)
 		if err != nil || !query.Next() {
-			return
+			return nil, err
 		}
 		err = query.Scan(&item.Id, &item.Quantity)
 		if err != nil {
-			return
+			return nil, err
 		}
 		results = append(results, item)
 	}
-	return
+	return results, nil
 }
 
-func (d *CartItemDB) LoadCartItems(cart int) (items []models.CartItem, err error) {
+func (d *CartItemDB) LoadCartItems(cart int) ([]models.CartItem, error) {
 	query, err := d.db.Queryx("SELECT id, cartid, product, quantity FROM cartitems WHERE cartid = $1", cart)
 	if err != nil {
 		return nil, err
 	}
+	var items []models.CartItem
 	for query.Next() {
 		var item models.CartItem
 		err := query.Scan(&item.Id, &item.CartId, &item.Product, &item.Quantity)
@@ -42,7 +43,7 @@ func (d *CartItemDB) LoadCartItems(cart int) (items []models.CartItem, err error
 		}
 		items = append(items, item)
 	}
-	return
+	return items, nil
 }
 
 func (d *CartItemDB) Remove(item models.CartItem) (int, error) {

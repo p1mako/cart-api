@@ -23,12 +23,8 @@ func (s *CartItemService) Create(item models.CartItem) (models.CartItem, error) 
 	return results[0], err
 }
 
-func (s *CartItemService) GetCartItems(id int) (items []models.CartItem, err error) {
-	items, err = s.db.LoadCartItems(id)
-	if err != nil {
-		return
-	}
-	return
+func (s *CartItemService) GetCartItems(id int) ([]models.CartItem, error) {
+	return s.db.LoadCartItems(id)
 }
 
 func (s *CartItemService) Remove(item models.CartItem) error {

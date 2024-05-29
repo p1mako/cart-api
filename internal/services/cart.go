@@ -17,22 +17,21 @@ type CartService struct {
 	itemServ ICartItemService
 }
 
-func (s *CartService) Create() (cart models.Cart, err error) {
-	cart, err = s.db.Create()
-	return
+func (s *CartService) Create() (models.Cart, error) {
+	return s.db.Create()
 }
 
-func (s *CartService) AddItem(item models.CartItem) (result models.CartItem, err error) {
+func (s *CartService) AddItem(item models.CartItem) (models.CartItem, error) {
 	if item.Quantity <= 0 {
-		return result, ErrBadQuantity
+		return models.CartItem{}, ErrBadQuantity
 	}
 	if item.Product == "" {
-		return result, ErrNoProductName
+		return models.CartItem{}, ErrNoProductName
 	}
 	return s.itemServ.Create(item)
 }
 
-func (s *CartService) RemoveItem(item models.CartItem) (err error) {
+func (s *CartService) RemoveItem(item models.CartItem) error {
 	return s.itemServ.Remove(item)
 }
 

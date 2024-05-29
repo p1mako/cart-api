@@ -8,15 +8,15 @@ import (
 )
 
 type ICartItemService interface {
-	Create(items models.CartItem) (results models.CartItem, err error)
-	GetCartItems(cart int) (items []models.CartItem, err error)
-	Remove(item models.CartItem) (err error)
+	Create(items models.CartItem) (models.CartItem, error)
+	GetCartItems(cart int) ([]models.CartItem, error)
+	Remove(item models.CartItem) error
 }
 
 type ICartService interface {
-	Create() (cart models.Cart, err error)
-	AddItem(item models.CartItem) (result models.CartItem, err error)
-	RemoveItem(item models.CartItem) (err error)
+	Create() (models.Cart, error)
+	AddItem(item models.CartItem) (models.CartItem, error)
+	RemoveItem(item models.CartItem) error
 	Get(id int) (models.Cart, error)
 }
 
