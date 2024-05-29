@@ -37,7 +37,7 @@ func (s *CartManipulator) RemoveItem(item models.CartItem) error {
 
 func (s *CartManipulator) Get(id int) (models.Cart, error) {
 	oldCart, err := s.db.Load(id)
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, sql.ErrNoRows) || oldCart.Id == 0 {
 		return oldCart, ErrNoSuchCart{Id: id}
 	}
 	oldCart.Items, err = s.itemServ.GetCartItems(id)
