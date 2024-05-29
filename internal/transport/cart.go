@@ -100,7 +100,7 @@ func (c *CartHandler) View(w http.ResponseWriter, r *http.Request) {
 	}
 	cart := models.Cart{Id: id}
 	result, err := c.service.Get(cart.Id)
-	if errors.Is(err, new(services.ErrNoSuchCart)) {
+	if errors.Is(err, services.ErrNoSuchCart{Id: cart.Id}) {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 		return
