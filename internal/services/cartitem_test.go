@@ -26,7 +26,7 @@ func (db *CartItemDbMock) Remove(item models.CartItem) (int, error) {
 	return args.Int(0), args.Error(1)
 }
 
-func getCartManipulatorWithMock() *CartItemManipulator {
+func getMockedCreateManipulator() *CartItemManipulator {
 	db := new(CartItemDbMock)
 	db.On("Create", []models.CartItem{{
 		CartId:   1,
@@ -87,7 +87,7 @@ var createTests = []struct {
 }
 
 func TestCreate(t *testing.T) {
-	sMocked := getCartManipulatorWithMock()
+	sMocked := getMockedCreateManipulator()
 	for _, test := range createTests {
 		t.Run(test.name, func(t *testing.T) {
 			out1, out2 := sMocked.Create(test.input)
@@ -98,6 +98,65 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestRemove(t *testing.T) {
+func getMockedRemoveManipulator() *CartItemManipulator {
+	db := new(CartItemDbMock)
+	db.On("Remove", models.CartItem{
+		Id:     1,
+		CartId: 1,
+	}).
+		Return(1, nil)
+	db.
+		On("Remove", models.CartItem{
+			Id:     2,
+			CartId: 1,
+		}).
+		Return(0, nil)
+	db.
+		On("Remove", models.CartItem{
+			Id:     1,
+			CartId: 2,
+		}).
+		Return(0, nil)
+	return &CartItemManipulator{db: db}
+}
 
+var removeTests = []struct {
+	name     string
+	input    models.CartItem
+	expected error
+}{
+	{
+		name: "Valid",
+		input: models.CartItem{
+			Id:     1,
+			CartId: 1,
+		},
+		expected: nil,
+	},
+	{
+		name: "Invalid cart id",
+		input: models.CartItem{
+			Id:     1,
+			CartId: 2,
+		},
+		expected: ErrNoSuchCart{Id: 2},
+	},
+	{
+		name: "Invalid id",
+		input: models.CartItem{
+			Id:     2,
+			CartId: 1,
+		},
+		expected: ErrNoSuchItem{Id: 2},
+	},
+}
+
+func TestRemove(t *testing.T) {
+	sMocked := getMockedRemoveManipulator()
+	for _, test := range removeTests {
+		t.Run(test.name, func(t *testing.T) {
+			out1 := sMocked.Remove(test.input)
+			assert.ErrorIs(t, out1, test.expected)
+		})
+	}
 }
