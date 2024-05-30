@@ -32,6 +32,10 @@ func (s *CartManipulator) AddItem(item models.CartItem) (models.CartItem, error)
 }
 
 func (s *CartManipulator) RemoveItem(item models.CartItem) error {
+	_, err := s.Get(item.CartId)
+	if err != nil {
+		return err
+	}
 	return s.itemServ.Remove(item)
 }
 

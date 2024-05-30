@@ -46,8 +46,8 @@ func (d *CartItemDB) LoadCartItems(cart int) ([]models.CartItem, error) {
 	return items, nil
 }
 
-func (d *CartItemDB) Remove(item models.CartItem) (int, error) {
-	res, err := d.db.Exec("DELETE FROM cartitems WHERE id = $1 AND cartid = $2", item.Id, item.CartId)
+func (d *CartItemDB) Remove(item int) (int, error) {
+	res, err := d.db.Exec("DELETE FROM cartitems WHERE id = $1", item)
 	if err != nil {
 		return 0, err
 	}
