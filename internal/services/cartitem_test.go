@@ -21,7 +21,7 @@ func (db *CartItemDbMock) LoadCartItems(cart int) ([]models.CartItem, error) {
 	args := db.Called(cart)
 	return args.Get(0).([]models.CartItem), args.Error(1)
 }
-func (db *CartItemDbMock) Remove(item models.CartItem) (int, error) {
+func (db *CartItemDbMock) Remove(item int) (int, error) {
 	args := db.Called(item)
 	return args.Int(0), args.Error(1)
 }
@@ -100,22 +100,10 @@ func TestCreate(t *testing.T) {
 
 func getMockedRemoveManipulator() *CartItemManipulator {
 	db := new(CartItemDbMock)
-	db.On("Remove", models.CartItem{
-		Id:     1,
-		CartId: 1,
-	}).
+	db.On("Remove", 1).
 		Return(1, nil)
 	db.
-		On("Remove", models.CartItem{
-			Id:     2,
-			CartId: 1,
-		}).
-		Return(0, nil)
-	db.
-		On("Remove", models.CartItem{
-			Id:     1,
-			CartId: 2,
-		}).
+		On("Remove", 2).
 		Return(0, nil)
 	return &CartItemManipulator{db: db}
 }
@@ -134,20 +122,20 @@ var removeTests = []struct {
 		expected: nil,
 	},
 	{
-		name: "Invalid cart id",
-		input: models.CartItem{
-			Id:     1,
-			CartId: 2,
-		},
-		expected: ErrNoSuchCart{Id: 2},
-	},
-	{
 		name: "Invalid id",
 		input: models.CartItem{
 			Id:     2,
 			CartId: 1,
 		},
 		expected: ErrNoSuchItem{Id: 2},
+	},
+	{
+		name: "Invalid cartId",
+		input: models.CartItem{
+			Id:     1,
+			CartId: 2,
+		},
+		expected: nil,
 	},
 }
 
