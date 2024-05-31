@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
@@ -15,8 +16,8 @@ type CartDB struct {
 	db *sqlx.DB
 }
 
-func (d *CartDB) Create() (models.Cart, error) {
-	query, err := d.db.Queryx("INSERT INTO carts DEFAULT VALUES RETURNING id")
+func (d *CartDB) Create(ctx context.Context) (models.Cart, error) {
+	query, err := d.db.QueryxContext(ctx, "INSERT INTO carts DEFAULT VALUES RETURNING id")
 	if err != nil {
 		return models.Cart{}, err
 	}
@@ -31,8 +32,8 @@ func (d *CartDB) Create() (models.Cart, error) {
 	return cart, err
 }
 
-func (d *CartDB) Load(id int) (models.Cart, error) {
-	query := d.db.QueryRowx("SELECT id FROM carts WHERE id = $1", id)
+func (d *CartDB) Load(ctx context.Context, id int) (models.Cart, error) {
+	query := d.db.QueryRowxContext(ctx, "SELECT id FROM carts WHERE id = $1", id)
 	if query.Err() != nil {
 		return models.Cart{}, query.Err()
 	}

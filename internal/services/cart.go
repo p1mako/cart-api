@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -17,33 +18,33 @@ type CartManipulator struct {
 	itemServ CartItemService
 }
 
-func (s *CartManipulator) Create() (models.Cart, error) {
-	return s.db.Create()
+func (s *CartManipulator) Create(ctx context.Context) (models.Cart, error) {
+	return s.db.Create(ctx)
 }
 
-func (s *CartManipulator) AddItem(item models.CartItem) (models.CartItem, error) {
+func (s *CartManipulator) AddItem(ctx context.Context, item models.CartItem) (models.CartItem, error) {
 	if item.Quantity <= 0 {
 		return models.CartItem{}, ErrBadQuantity
 	}
 	if item.Product == "" {
 		return models.CartItem{}, ErrNoProductName
 	}
-	return s.itemServ.Create(item)
+	return s.itemServ.Create(ctx, item)
 }
 
-func (s *CartManipulator) RemoveItem(item models.CartItem) error {
-	_, err := s.Get(item.CartId)
+func (s *CartManipulator) RemoveItem(ctx context.Context, item models.CartItem) error {
+	_, err := s.Get(ctx, item.CartId)
 	if err != nil {
 		return ErrNoSuchCart{Id: item.CartId}
 	}
-	return s.itemServ.Remove(item)
+	return s.itemServ.Remove(ctx, item)
 }
 
-func (s *CartManipulator) Get(id int) (models.Cart, error) {
-	oldCart, err := s.db.Load(id)
+func (s *CartManipulator) Get(ctx context.Context, id int) (models.Cart, error) {
+	oldCart, err := s.db.Load(ctx, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return oldCart, ErrNoSuchCart{Id: id}
 	}
-	oldCart.Items, err = s.itemServ.GetCartItems(id)
+	oldCart.Items, err = s.itemServ.GetCartItems(ctx, id)
 	return oldCart, err
 }
