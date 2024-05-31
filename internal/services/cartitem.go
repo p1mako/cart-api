@@ -28,12 +28,9 @@ func (s *CartItemManipulator) GetCartItems(id int) ([]models.CartItem, error) {
 }
 
 func (s *CartItemManipulator) Remove(item models.CartItem) error {
-	cnt, err := s.db.Remove(item)
+	err := s.db.Remove(item)
 	if err != nil {
-		return errors.Join(ErrNoSuchCart{item.CartId}, err)
-	}
-	if cnt != 1 {
-		return ErrNoSuchItem{Id: item.Id}
+		return errors.Join(ErrNoSuchItem{item.Id}, err)
 	}
 	return err
 }
