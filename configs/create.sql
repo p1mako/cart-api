@@ -1,3 +1,7 @@
+CREATE TABLE Carts
+(
+    Id serial PRIMARY KEY NOT NULL
+);
 CREATE TABLE CartItems
 (
     Id       serial PRIMARY KEY NOT NULL,
@@ -5,9 +9,4 @@ CREATE TABLE CartItems
     Product  VARCHAR(50) NOT NULL,
     Quantity integer NOT NULL,
     UNIQUE (CartId, Product)
-);
-
-CREATE TABLE Carts
-(
-    Id serial PRIMARY KEY NOT NULL
 );

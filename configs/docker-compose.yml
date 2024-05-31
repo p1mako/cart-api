@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ./create.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_PASSWORD=Wise299
+      - POSTGRES_USER=cart_dev
+      - POSTGRES_DB=cart_api
+  backend:
+    image: cart-api
+    restart: always
+    ports:
+      - 3000:3000
