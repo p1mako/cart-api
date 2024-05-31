@@ -8,8 +8,17 @@ services:
       - POSTGRES_PASSWORD=Wise299
       - POSTGRES_USER=cart_dev
       - POSTGRES_DB=cart_api
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
   backend:
     image: cart-api
     restart: always
     ports:
       - 3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
