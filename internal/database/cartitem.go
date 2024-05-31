@@ -18,7 +18,7 @@ type CartItemDB struct {
 func (d *CartItemDB) Create(ctx context.Context, items ...models.CartItem) ([]models.CartItem, error) {
 	var results []models.CartItem
 	for _, item := range items {
-		query, err := d.db.QueryxContext(ctx, "INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3) ON CONFLICT (cartid, product) DO UPDATE SET quantity = cartitems.quantity + excluded.quantity RETURNING cartitems.id, cartitems.quantity", item.CartId, item.Product, item.Quantity)
+		query, err := d.db.QueryxContext(ctx, "INSERT INTO cartitems(cart_id, product, quantity) VALUES ($1, $2, $3) ON CONFLICT (cart_id, product) DO UPDATE SET quantity = cartitems.quantity + excluded.quantity RETURNING cartitems.id, cartitems.quantity", item.CartId, item.Product, item.Quantity)
 		if err != nil || !query.Next() {
 			return nil, err
 		}
@@ -32,7 +32,7 @@ func (d *CartItemDB) Create(ctx context.Context, items ...models.CartItem) ([]mo
 }
 
 func (d *CartItemDB) LoadCartItems(ctx context.Context, cart int) ([]models.CartItem, error) {
-	query, err := d.db.QueryxContext(ctx, "SELECT id, cartid, product, quantity FROM cartitems WHERE cartid = $1", cart)
+	query, err := d.db.QueryxContext(ctx, "SELECT id, cart_id, product, quantity FROM cartitems WHERE cart_id = $1", cart)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +49,6 @@ func (d *CartItemDB) LoadCartItems(ctx context.Context, cart int) ([]models.Cart
 }
 
 func (d *CartItemDB) Remove(ctx context.Context, item models.CartItem) error {
-	_, err := d.db.QueryxContext(ctx, "DELETE FROM cartitems WHERE id = $1 AND cartid = $2 RETURNING id", item.Id, item.CartId)
+	_, err := d.db.QueryxContext(ctx, "DELETE FROM cartitems WHERE id = $1 AND cart_id = $2 RETURNING id", item.Id, item.CartId)
 	return err
 }
