@@ -1,13 +1,13 @@
 CREATE TABLE CartItems
 (
-    Id       serial PRIMARY KEY NOT NULL,
-    CartId   integer REFERENCES Carts(Id) NOT NULL,
-    Product  VARCHAR(50) NOT NULL,
-    Quantity integer NOT NULL,
-    UNIQUE (CartId, Product)
+    id       serial PRIMARY KEY NOT NULL,
+    cart_id   integer REFERENCES Carts(id) NOT NULL,
+    product  VARCHAR(50) NOT NULL,
+    quantity integer NOT NULL,
+    UNIQUE (cart_id, product)
 );
 
 CREATE TABLE Carts
 (
-    Id serial PRIMARY KEY NOT NULL
+    id serial PRIMARY KEY NOT NULL
 );
