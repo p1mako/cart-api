@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 
@@ -13,13 +14,13 @@ type CartDbMocked struct {
 	mock.Mock
 }
 
-func (o *CartDbMocked) Create() (models.Cart, error) {
-	args := o.Called()
+func (o *CartDbMocked) Create(context context.Context) (models.Cart, error) {
+	args := o.Called(context)
 	return args.Get(0).(models.Cart), args.Error(1)
 }
 
-func (o *CartDbMocked) Load(id int) (models.Cart, error) {
-	args := o.Called(id)
+func (o *CartDbMocked) Load(context context.Context, id int) (models.Cart, error) {
+	args := o.Called(context, id)
 	return args.Get(0).(models.Cart), args.Error(1)
 }
 
@@ -27,18 +28,18 @@ type CartItemServiceMocked struct {
 	mock.Mock
 }
 
-func (o *CartItemServiceMocked) Create(items models.CartItem) (models.CartItem, error) {
-	args := o.Called(items)
+func (o *CartItemServiceMocked) Create(context context.Context, items models.CartItem) (models.CartItem, error) {
+	args := o.Called(context, items)
 	return args.Get(0).(models.CartItem), args.Error(1)
 }
 
-func (o *CartItemServiceMocked) GetCartItems(cart int) ([]models.CartItem, error) {
-	args := o.Called(cart)
+func (o *CartItemServiceMocked) GetCartItems(context context.Context, cart int) ([]models.CartItem, error) {
+	args := o.Called(context, cart)
 	return args.Get(0).([]models.CartItem), args.Error(1)
 }
 
-func (o *CartItemServiceMocked) Remove(item models.CartItem) error {
-	args := o.Called(item)
+func (o *CartItemServiceMocked) Remove(context context.Context, item models.CartItem) error {
+	args := o.Called(context, item)
 	return args.Error(0)
 }
 
@@ -52,16 +53,16 @@ func getDependencies() (*CartDbMocked, *CartItemServiceMocked) {
 			Items: nil,
 		}, nil)
 	cartDb.
-		On("Load", 1).
+		On("Load", nil, 1).
 		Return(models.Cart{
 			Id:    1,
 			Items: nil,
 		}, nil)
 	cartDb.
-		On("Load", 2).
+		On("Load", nil, 2).
 		Return(models.Cart{}, sql.ErrNoRows)
 	cartItemServ.
-		On("Create", models.CartItem{
+		On("Create", nil, models.CartItem{
 			CartId:   1,
 			Product:  "qwerty",
 			Quantity: 1,
@@ -73,7 +74,7 @@ func getDependencies() (*CartDbMocked, *CartItemServiceMocked) {
 			Quantity: 1,
 		}, nil)
 	cartItemServ.
-		On("GetCartItems", 1).
+		On("GetCartItems", nil, 1).
 		Return([]models.CartItem{{
 			Id:       1,
 			CartId:   1,
@@ -81,13 +82,13 @@ func getDependencies() (*CartDbMocked, *CartItemServiceMocked) {
 			Quantity: 1,
 		}}, nil)
 	cartItemServ.
-		On("GetCartItems", 2).
+		On("GetCartItems", nil, 2).
 		Return(mock.Anything, ErrNoSuchCart{Id: 2})
 	cartItemServ.
-		On("Remove", models.CartItem{Id: 1, CartId: 1}).
+		On("Remove", nil, models.CartItem{Id: 1, CartId: 1}).
 		Return(nil)
 	cartItemServ.
-		On("Remove", models.CartItem{Id: 2, CartId: 1}).
+		On("Remove", nil, models.CartItem{Id: 2, CartId: 1}).
 		Return(ErrNoSuchItem{})
 	return cartDb, cartItemServ
 }
@@ -147,7 +148,7 @@ func TestCartService_AddItem(t *testing.T) {
 	cartServ := getCartService()
 	for _, test := range addItemTests {
 		t.Run(test.name, func(t *testing.T) {
-			out1, out2 := cartServ.AddItem(test.input)
+			out1, out2 := cartServ.AddItem(nil, test.input)
 			assert.Equal(t, out1, test.expected)
 			assert.Equal(t, out2, test.err)
 		})
@@ -190,7 +191,7 @@ func TestCartService_Get(t *testing.T) {
 	}
 	for _, test := range getTests {
 		t.Run(test.name, func(t *testing.T) {
-			out1, out2 := cartServ.Get(test.input)
+			out1, out2 := cartServ.Get(nil, test.input)
 			assert.Equal(t, out1, test.expected)
 			assert.Equal(t, out2, test.err)
 		})

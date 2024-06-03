@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 
@@ -13,22 +14,22 @@ type CartItemDbMock struct {
 	mock.Mock
 }
 
-func (db *CartItemDbMock) Create(items ...models.CartItem) ([]models.CartItem, error) {
-	args := db.Called(items)
+func (db *CartItemDbMock) Create(context context.Context, items ...models.CartItem) ([]models.CartItem, error) {
+	args := db.Called(context, items)
 	return args.Get(0).([]models.CartItem), args.Error(1)
 }
-func (db *CartItemDbMock) LoadCartItems(cart int) ([]models.CartItem, error) {
-	args := db.Called(cart)
+func (db *CartItemDbMock) LoadCartItems(context context.Context, cart int) ([]models.CartItem, error) {
+	args := db.Called(context, cart)
 	return args.Get(0).([]models.CartItem), args.Error(1)
 }
-func (db *CartItemDbMock) Remove(item int) (int, error) {
-	args := db.Called(item)
-	return args.Int(0), args.Error(1)
+func (db *CartItemDbMock) Remove(context context.Context, item models.CartItem) error {
+	args := db.Called(context, item)
+	return args.Error(0)
 }
 
 func getMockedCreateManipulator() *CartItemManipulator {
 	db := new(CartItemDbMock)
-	db.On("Create", []models.CartItem{{
+	db.On("Create", nil, []models.CartItem{{
 		CartId:   1,
 		Product:  "qqqqq",
 		Quantity: 10,
@@ -43,7 +44,7 @@ func getMockedCreateManipulator() *CartItemManipulator {
 			nil,
 		)
 	db.
-		On("Create", []models.CartItem{{
+		On("Create", nil, []models.CartItem{{
 			CartId:   2,
 			Product:  "qqqqq",
 			Quantity: 10,
@@ -90,7 +91,7 @@ func TestCreate(t *testing.T) {
 	sMocked := getMockedCreateManipulator()
 	for _, test := range createTests {
 		t.Run(test.name, func(t *testing.T) {
-			out1, out2 := sMocked.Create(test.input)
+			out1, out2 := sMocked.Create(nil, test.input)
 			if !assert.ErrorIs(t, out2, test.err) {
 				assert.Equal(t, out1, test.expected)
 			}
@@ -100,11 +101,14 @@ func TestCreate(t *testing.T) {
 
 func getMockedRemoveManipulator() *CartItemManipulator {
 	db := new(CartItemDbMock)
-	db.On("Remove", 1).
-		Return(1, nil)
+	db.On("Remove", nil, models.CartItem{Id: 1, CartId: 1}).
+		Return(nil)
 	db.
-		On("Remove", 2).
-		Return(0, nil)
+		On("Remove", nil, models.CartItem{Id: 2, CartId: 1}).
+		Return(ErrNoSuchItem{Id: 2})
+	db.
+		On("Remove", nil, models.CartItem{Id: 1, CartId: 2}).
+		Return(ErrNoSuchItem{Id: 1})
 	return &CartItemManipulator{db: db}
 }
 
@@ -135,7 +139,7 @@ var removeTests = []struct {
 			Id:     1,
 			CartId: 2,
 		},
-		expected: nil,
+		expected: ErrNoSuchItem{1},
 	},
 }
 
@@ -143,7 +147,7 @@ func TestRemove(t *testing.T) {
 	sMocked := getMockedRemoveManipulator()
 	for _, test := range removeTests {
 		t.Run(test.name, func(t *testing.T) {
-			out1 := sMocked.Remove(test.input)
+			out1 := sMocked.Remove(nil, test.input)
 			assert.ErrorIs(t, out1, test.expected)
 		})
 	}
