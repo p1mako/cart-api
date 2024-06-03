@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -8,16 +9,16 @@ import (
 )
 
 type CartItemService interface {
-	Create(items models.CartItem) (models.CartItem, error)
-	GetCartItems(cart int) ([]models.CartItem, error)
-	Remove(item models.CartItem) error
+	Create(ctx context.Context, items models.CartItem) (models.CartItem, error)
+	GetCartItems(ctx context.Context, cart int) ([]models.CartItem, error)
+	Remove(ctx context.Context, item models.CartItem) error
 }
 
 type CartService interface {
-	Create() (models.Cart, error)
-	AddItem(item models.CartItem) (models.CartItem, error)
-	RemoveItem(item models.CartItem) error
-	Get(id int) (models.Cart, error)
+	Create(ctx context.Context) (models.Cart, error)
+	AddItem(ctx context.Context, item models.CartItem) (models.CartItem, error)
+	RemoveItem(ctx context.Context, item models.CartItem) error
+	Get(ctx context.Context, id int) (models.Cart, error)
 }
 
 type ErrNoSuchCart struct {
