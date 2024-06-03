@@ -19,18 +19,17 @@ func Run() {
 	exitCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM)
 	srv := http.Server{Addr: ":3000"}
 	go startServer(&srv, stop)
-	defer stopServer()(&srv)
+	defer stopServer(&srv)
 	<-exitCtx.Done()
 }
 
-func stopServer() func(srv *http.Server) {
-	return func(srv *http.Server) {
-		err := srv.Close()
-		if err != nil {
-			log.Fatalf("unable to stop server: %v\n", err.Error())
-		}
-		log.Printf("Sucessfully closed server: %v\n", srv.Addr)
+func stopServer(srv *http.Server) {
+	err := srv.Close()
+	if err != nil {
+		log.Fatalf("unable to stop server: %v\n", err.Error())
 	}
+	log.Printf("Sucessfully closed server: %v\n", srv.Addr)
+
 }
 
 func startServer(srv *http.Server, c context.CancelFunc) {
