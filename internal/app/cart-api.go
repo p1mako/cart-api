@@ -12,6 +12,7 @@ import (
 )
 
 func Run() {
+	database.InitDb()
 	defer closeDB()
 	setPaths()
 	exit := make(chan error)

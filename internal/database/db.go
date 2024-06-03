@@ -21,7 +21,7 @@ type dbInfo struct {
 var pathToConfig = "./internal/config/db-conf.json"
 var db *sqlx.DB
 
-func init() {
+func InitDb() {
 	connectionInfo, err := getConfig()
 	if err != nil {
 		log.Fatalf("unable to open connection with db: error while loading config")
