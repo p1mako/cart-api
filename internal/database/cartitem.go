@@ -1,6 +1,8 @@
 package database
 
 import (
+	"context"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/p1mako/cart-api/internal/models"
 )
@@ -13,10 +15,10 @@ type CartItemDB struct {
 	db *sqlx.DB
 }
 
-func (d *CartItemDB) Create(items ...models.CartItem) ([]models.CartItem, error) {
+func (d *CartItemDB) Create(ctx context.Context, items ...models.CartItem) ([]models.CartItem, error) {
 	var results []models.CartItem
 	for _, item := range items {
-		query, err := d.db.Queryx("INSERT INTO cartitems(cartid, product, quantity) VALUES ($1, $2, $3) ON CONFLICT (cartid, product) DO UPDATE SET quantity = cartitems.quantity + excluded.quantity RETURNING cartitems.id, cartitems.quantity", item.CartId, item.Product, item.Quantity)
+		query, err := d.db.QueryxContext(ctx, "INSERT INTO cartitems(cart_id, product, quantity) VALUES ($1, $2, $3) ON CONFLICT (cart_id, product) DO UPDATE SET quantity = cartitems.quantity + excluded.quantity RETURNING cartitems.id, cartitems.quantity", item.CartId, item.Product, item.Quantity)
 		if err != nil || !query.Next() {
 			return nil, err
 		}
@@ -29,8 +31,8 @@ func (d *CartItemDB) Create(items ...models.CartItem) ([]models.CartItem, error)
 	return results, nil
 }
 
-func (d *CartItemDB) LoadCartItems(cart int) ([]models.CartItem, error) {
-	query, err := d.db.Queryx("SELECT id, cartid, product, quantity FROM cartitems WHERE cartid = $1", cart)
+func (d *CartItemDB) LoadCartItems(ctx context.Context, cart int) ([]models.CartItem, error) {
+	query, err := d.db.QueryxContext(ctx, "SELECT id, cart_id, product, quantity FROM cartitems WHERE cart_id = $1", cart)
 	if err != nil {
 		return nil, err
 	}
@@ -46,14 +48,7 @@ func (d *CartItemDB) LoadCartItems(cart int) ([]models.CartItem, error) {
 	return items, nil
 }
 
-func (d *CartItemDB) Remove(item int) (int, error) {
-	res, err := d.db.Exec("DELETE FROM cartitems WHERE id = $1", item)
-	if err != nil {
-		return 0, err
-	}
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return int(affected), err
-	}
-	return int(affected), err
+func (d *CartItemDB) Remove(ctx context.Context, item models.CartItem) error {
+	_, err := d.db.QueryxContext(ctx, "DELETE FROM cartitems WHERE id = $1 AND cart_id = $2 RETURNING id", item.Id, item.CartId)
+	return err
 }
