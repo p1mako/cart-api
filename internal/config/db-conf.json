@@ -1,0 +1,7 @@
+{
+  "host": "localhost",
+  "port": 5432,
+  "dbname": "cart_api",
+  "user": "cart_dev",
+  "password" : "Wise299"
+}
