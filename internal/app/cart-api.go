@@ -1,11 +1,12 @@
 package app
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
+	"os/signal"
+	"syscall"
 
 	"github.com/p1mako/cart-api/internal/database"
 	"github.com/p1mako/cart-api/internal/transport"
@@ -15,45 +16,27 @@ func Run() {
 	database.InitDb()
 	defer closeDB()
 	setPaths()
-	exit := make(chan error)
+	exitCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM)
 	srv := http.Server{Addr: ":3000"}
-	go startServer(&srv, exit)
-	defer func(srv *http.Server) {
-		err := srv.Close()
-		if err != nil {
-			log.Fatalf("unable to stop server: %v\n", err.Error())
-		}
-		log.Printf("Sucessfully closed server: %v\n", srv.Addr)
-	}(&srv)
-	go userInput(exit)
-	select {
-	case err := <-exit:
-		if err != nil {
-			log.Fatalf("unable to start server: %v\n", err.Error())
-		}
-		return
-	}
+	go startServer(&srv, stop)
+	defer stopServer(&srv)
+	<-exitCtx.Done()
 }
 
-func userInput(c chan error) {
-	for {
-		var input string
-		_, err := fmt.Scan(&input)
-		if err != nil {
-			log.Fatalf("failed to start listening to user input: %v\n", err.Error())
-			return
-		}
-		if strings.ToLower(input) == "exit" {
-			c <- nil
-			return
-		}
+func stopServer(srv *http.Server) {
+	err := srv.Close()
+	if err != nil {
+		log.Fatalf("unable to stop server: %v\n", err.Error())
 	}
+	log.Printf("Sucessfully closed server: %v\n", srv.Addr)
+
 }
 
-func startServer(srv *http.Server, c chan error) {
+func startServer(srv *http.Server, c context.CancelFunc) {
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
-		c <- err
+		log.Printf("Cannot start server :%v\n", err.Error())
+		c()
 	}
 }
 
