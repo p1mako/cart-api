@@ -31,6 +31,10 @@ func InitDb() {
 	if err != nil {
 		log.Fatalf("unable to open connection with db %v\n", err.Error())
 	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("unable to open connection with db %v\n", err.Error())
+	}
 	log.Printf("Opened connection with db %v\n", connectionInfo.Dbname)
 
 }
